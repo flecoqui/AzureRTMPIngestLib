@@ -98,21 +98,22 @@ IFACEMETHODIMP RTMPPublisherSink::GetStreamSinkById(DWORD dwStreamSinkIdentifier
 
   try
   {
+	// Fix Fall Creator Update issue: 0: Video 1: Audio
     if (dwStreamSinkIdentifier == 0)
     {
       if (_audioStreamSink == nullptr && _videoStreamSink == nullptr)
         return E_FAIL;
-      else if (_audioStreamSink == nullptr)
-        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
-      else
+      else if (_videoStreamSink == nullptr)
         ThrowIfFailed(_audioStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
+      else
+        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
     }
     else if (dwStreamSinkIdentifier == 1)
     {
-      if (_videoStreamSink == nullptr)
+      if (_audioStreamSink == nullptr)
         return E_FAIL;
       else
-        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
+        ThrowIfFailed(_audioStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
     }
   }
   catch (const HRESULT& hr)
@@ -137,22 +138,23 @@ IFACEMETHODIMP RTMPPublisherSink::GetStreamSinkByIndex(DWORD  dwIndex, IMFStream
 
   try
   {
+	// Fix Fall Creator Update issue: 0: Video 1: Audio
     if (dwIndex == 0)
     {
       if (_audioStreamSink == nullptr && _videoStreamSink == nullptr)
         return E_FAIL;
-      else if (_audioStreamSink == nullptr)
-        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
-      else
+      else if (_videoStreamSink == nullptr)
         ThrowIfFailed(_audioStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
+      else
+        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
 
     }
     else if (dwIndex == 1)
     {
-      if (_videoStreamSink == nullptr)
+      if (_audioStreamSink == nullptr)
         return E_FAIL;
       else
-        ThrowIfFailed(_videoStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
+        ThrowIfFailed(_audioStreamSink.Get()->QueryInterface(IID_PPV_ARGS(ppStreamSink)));
     }
   }
   catch (const HRESULT& hr)
@@ -516,17 +518,18 @@ void RTMPPublisherSink::Initialize(std::vector<PublishProfile^> targetProfiles,
       //else
       //  _sampleProcessingQueue = aggregatingParentSink->GetSampleProcessingQueue();
 
+	  // Fix Fall Creator Update issue: 0: Video 1: Audio
       DWORD id = 0;
-      if (_targetProfileStates[0]->PublishProfile->TargetEncodingProfile->Audio != nullptr)
+	  if (_targetProfileStates[0]->PublishProfile->TargetEncodingProfile->Video != nullptr)
+		  ThrowIfFailed(MakeAndInitialize<RTMPVideoStreamSink>(&_videoStreamSink,
+			  id++,
+			  this,
+			  _targetProfileStates[0]->PublishProfile->TargetEncodingProfile,
+			  _sampleProcessingQueue,
+			  _session,
+			  std::vector<shared_ptr<ProfileState>>{ _targetProfileStates[0] }));
+	  if (_targetProfileStates[0]->PublishProfile->TargetEncodingProfile->Audio != nullptr)
         ThrowIfFailed(MakeAndInitialize<RTMPAudioStreamSink>(&_audioStreamSink,
-          id++,
-          this,
-          _targetProfileStates[0]->PublishProfile->TargetEncodingProfile,
-          _sampleProcessingQueue,
-          _session,
-          std::vector<shared_ptr<ProfileState>>{ _targetProfileStates[0] }));
-      if (_targetProfileStates[0]->PublishProfile->TargetEncodingProfile->Video != nullptr)
-        ThrowIfFailed(MakeAndInitialize<RTMPVideoStreamSink>(&_videoStreamSink,
           id,
           this,
           _targetProfileStates[0]->PublishProfile->TargetEncodingProfile,
