@@ -135,24 +135,25 @@ namespace Microsoft
 
         void StopPresentationClock();
 
+		// Fix for Fall Creator Update
         HRESULT GetStreamSinkIndex(const GUID& MajorMediaType, DWORD& dwsinkidx)
         {
           if (MajorMediaType == MFMediaType_Audio)
           {
             if (this->_audioStreamSink == nullptr)
               return E_NOTIMPL;
-            else
-              dwsinkidx = 0;
+			else if (this->_videoStreamSink == nullptr)
+				dwsinkidx = 0;
+			else
+              dwsinkidx = 1;
 
           }
           else if (MajorMediaType == MFMediaType_Video)
           {
             if (this->_videoStreamSink == nullptr)
               return E_NOTIMPL;
-            else if (this->_audioStreamSink == nullptr)
-              dwsinkidx = 0;
             else
-              dwsinkidx = 1;
+              dwsinkidx = 0;
           }
 
           return S_OK;

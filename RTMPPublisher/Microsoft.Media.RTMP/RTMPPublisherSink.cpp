@@ -210,7 +210,8 @@ IFACEMETHODIMP RTMPPublisherSink::SetPresentationClock(IMFPresentationClock *pPr
 
     if (IsAggregating())
     {
-      DWORD audioSinkIndex = 0;
+		// Fix for Fall Creator Update
+      DWORD audioSinkIndex = 1;
       ComPtr<IMFMediaType> mtype;
       _audioStreamSink->GetCurrentMediaType(&mtype);
 
@@ -599,13 +600,13 @@ void RTMPPublisherSink::Initialize(std::vector<PublishProfile^> targetProfiles,
       
 
       DWORD id = 0;
-
+	  // Fix for Fall Creator Update
       if (std::find_if(begin(_targetProfileStates), end(_targetProfileStates), [this](shared_ptr<ProfileState> profstate)
       {
-        return profstate->PublishProfile->TargetEncodingProfile->Audio != nullptr;
+        return profstate->PublishProfile->TargetEncodingProfile->Video != nullptr;
       }) != end(_targetProfileStates))
       {
-        ThrowIfFailed(MakeAndInitialize<RTMPAudioStreamSink>(&_audioStreamSink,
+        ThrowIfFailed(MakeAndInitialize<RTMPVideoStreamSink>(&_videoStreamSink,
           id++,
           this,
           interimprofile,
@@ -613,12 +614,13 @@ void RTMPPublisherSink::Initialize(std::vector<PublishProfile^> targetProfiles,
           _session,
           _targetProfileStates));
       }
+	  // Fix for Fall Creator Update
       if (std::find_if(begin(_targetProfileStates), end(_targetProfileStates), [this](shared_ptr<ProfileState> profstate)
       {
-        return profstate->PublishProfile->TargetEncodingProfile->Video != nullptr;
+        return profstate->PublishProfile->TargetEncodingProfile->Audio != nullptr;
       }) != end(_targetProfileStates))
       {
-        ThrowIfFailed(MakeAndInitialize<RTMPVideoStreamSink>(&_videoStreamSink,
+        ThrowIfFailed(MakeAndInitialize<RTMPAudioStreamSink>(&_audioStreamSink,
           id,
           this,
           interimprofile,
