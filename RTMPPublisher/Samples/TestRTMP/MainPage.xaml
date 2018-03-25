@@ -19,9 +19,13 @@
         </Grid.ColumnDefinitions>
         <StackPanel HorizontalAlignment="Left" Margin="30,10,0,0"  VerticalAlignment="Top" Orientation="Vertical">
             <TextBlock  >RTMP Uri:</TextBlock>
-            <TextBox x:Name="RTMPUri" IsEnabled="False" Text="rtmp://testrtmplivearena-testlivearenamd.channel.mediaservices.windows.net:1935/live/ca620842c33e4371a6071e5b12f705df"></TextBox>
-            <Button x:Name="StartStreaming" FontSize="22"  Click="StartStreaming_Click" IsEnabled="False">Start Streaming</Button>
-            <Button x:Name="StopStreaming" FontSize="22"  Click="StopStreaming_Click" IsEnabled="False">Stop Streaming</Button>
+            <TextBox x:Name="RTMPUri" IsEnabled="False" Text="rtmp://testlive-testamsmedia.channel.mediaservices.windows.net:1935/live/ebf0450a334e4803a9feb88d4b3ab612"></TextBox>
+            <TextBlock  >Start Timestamp in ms:</TextBlock>
+            <TextBox x:Name="StartTime" IsEnabled="False" HorizontalAlignment="Left" Text="0" Width="200"  TextChanging="StartTime_TextChanging" ></TextBox>
+            <Button x:Name="StartStreaming" FontSize="22"  Click="StartStreaming_Click" IsEnabled="False" Width="200">Start Streaming</Button>
+            <TextBlock  >Current Time in ms:</TextBlock>
+            <TextBox x:Name="CurrentTime" IsEnabled="False" HorizontalAlignment="Left" Text="0" Width="200" IsReadOnly="True"></TextBox>
+            <Button x:Name="StopStreaming" FontSize="22"  Click="StopStreaming_Click" IsEnabled="False" Width="200">Stop Streaming</Button>
         <!--    <CaptureElement x:Name="ceSourcePreview" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/> -->
         </StackPanel>
 
@@ -29,3 +33,4 @@
     
         </Grid>
 </Page>
+ 

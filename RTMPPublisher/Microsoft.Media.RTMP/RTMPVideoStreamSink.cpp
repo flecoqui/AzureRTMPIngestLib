@@ -414,6 +414,8 @@ void RTMPVideoStreamSink::PrepareTimestamps(MediaSampleInfo* sampleInfo, LONGLON
   _lastPTS = PTS;
   _lastDTS = DTS;
 
+  
+
   /* LOG("VideoStreamSink" << (IsAggregating() ? "(Agg)" : "")
   << ":: PTS = " << "[" <<_lastOriginalPTS << "] "<<ToRTMPTimestamp(_lastOriginalPTS)
   << ", DTS = " << "[" << _lastOriginalDTS << "] " << ToRTMPTimestamp(_lastOriginalDTS)
@@ -596,7 +598,7 @@ HRESULT RTMPVideoStreamSink::CompleteProcessNextWorkitem(IMFAsyncResult *pAsyncR
 
  
     LOG(_streamsinkname << ",Video TS = " << uiDTS);
- 
+	_targetProfileStates[0]->PublishProfile->LastDTS = uiDTS;
 
   }
   else //marker

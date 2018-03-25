@@ -24,11 +24,31 @@ namespace TestRTMP
     {
         CaptureDevice device = null;
         bool bStreaming = false;
+        long startTime = 0;
+        long lastDTS = 0;
+        DispatcherTimer dispatcherTimer;
         public MainPage()
         {
             this.InitializeComponent();
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Tick += dispatcherTimer_Tick;
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            dispatcherTimer.Start();
             LogMessage("MainPage constructor...");
 
+        }
+        void dispatcherTimer_Tick(object sender, object e)
+        {
+            if(device!=null)
+            {
+                long l = device.GetLastDTS();
+                if(l != lastDTS)
+                {
+                    lastDTS = l;
+                   // LogMessage("Last DTS: " + lastDTS.ToString());
+                    CurrentTime.Text = lastDTS.ToString();
+                }
+            }
         }
         void UpdateControls()
         {
@@ -37,12 +57,16 @@ namespace TestRTMP
                 StartStreaming.IsEnabled = false;
                 RTMPUri.IsEnabled = false;
                 StopStreaming.IsEnabled = true;
+                StartTime.IsEnabled = false;
+                CurrentTime.IsEnabled = true;
             }
             else
             {
                 StartStreaming.IsEnabled = true;
                 RTMPUri.IsEnabled = true;
                 StopStreaming.IsEnabled = false;
+                StartTime.IsEnabled = true;
+                CurrentTime.IsEnabled = false;
             }
 
         }
@@ -82,7 +106,7 @@ namespace TestRTMP
         private async void StartStreaming_Click(object sender, RoutedEventArgs e)
         {
             //            string rtmpUri = "rtmp://testrtmplivearena-testlivearenamd.channel.mediaservices.windows.net:1935/live/ca620842c33e4371a6071e5b12f705df/MyStream1";
-            string rtmpUri = "rtmp://testrtmplivearena-testlivearenamd.channel.mediaservices.windows.net:1935/live/ca620842c33e4371a6071e5b12f705df";
+            string rtmpUri = "rtmp://testlive-testamsmedia.channel.mediaservices.windows.net:1935/live/ebf0450a334e4803a9feb88d4b3ab612";
             // string previewUri = "http://testrtmplivearena-testlivearenamd.channel.mediaservices.windows.net/preview.isml/manifest";
             if (!string.IsNullOrEmpty(RTMPUri.Text))
                 LogMessage("Start Streaming towards " + RTMPUri.Text);
@@ -111,9 +135,12 @@ namespace TestRTMP
                         mep.Container = null;
                         if (!string.IsNullOrEmpty(RTMPUri.Text))
                             rtmpUri = RTMPUri.Text;
-                        await device.StartRecordingAsync(rtmpUri, mep);
+                        if (!string.IsNullOrEmpty(StartTime.Text))
+                            long.TryParse(StartTime.Text, out startTime);
+                        await device.StartRecordingAsync(rtmpUri, mep, startTime);
                         device.CaptureFailed += Device_CaptureFailed;
                         bStreaming = true;
+                        UpdateControls();
                         LogMessage("Start Streaming successful");
                     }
                     catch (Exception ex)
@@ -139,6 +166,7 @@ namespace TestRTMP
                     bStreaming = false;
                     device = null;
                     LogMessage("Stop Streaming successful");
+                    UpdateControls();
                 }
             }
             catch (Exception ex)
@@ -245,5 +273,18 @@ namespace TestRTMP
         }
         #endregion
 
+
+
+
+        private void StartTime_TextChanging(TextBox sender, TextBoxTextChangingEventArgs args)
+        {
+            string val = StartTime.Text;
+            int i;
+            if (int.TryParse(val, out i))
+                startTime = i;
+            else
+                StartTime.Text = startTime.ToString();
+
+        }
     }
 }

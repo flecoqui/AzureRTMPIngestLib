@@ -29,7 +29,7 @@ namespace TestRTMP
         //}
         PublishProfile publishProfile;
         RTMPPublishSession session;
-        public   Windows.Foundation.IAsyncOperation<Windows.Media.IMediaExtension> InitializeAsync(string uri, AudioEncodingProperties audioProf, VideoEncodingProperties videoProf )
+        public   Windows.Foundation.IAsyncOperation<Windows.Media.IMediaExtension> InitializeAsync(string uri, AudioEncodingProperties audioProf, VideoEncodingProperties videoProf, long startTimeMs )
 
         {
             Windows.Foundation.IAsyncOperation<Windows.Media.IMediaExtension> result = null;
@@ -48,6 +48,11 @@ namespace TestRTMP
             publishProfile = new PublishProfile(RTMPServerType.Azure);
             publishProfile.TargetEncodingProfile = MediaEncodingProfile.CreateMp4(VideoEncodingQuality.HD720p);
             publishProfile.TargetEncodingProfile.Container = null;
+
+
+            publishProfile.AudioTimestampBase = startTimeMs*10000;
+            publishProfile.VideoTimestampBase = startTimeMs*10000;
+
 
 
                 publishProfile.EndpointUri = uri;
@@ -81,6 +86,12 @@ namespace TestRTMP
         public void Dispose()
         {
 
+        }
+        public long GetLastDTS()
+        {
+            if (publishProfile != null)
+                return publishProfile.LastDTS;
+            return 0;
         }
     }
     internal class CaptureDevice
@@ -234,7 +245,7 @@ namespace TestRTMP
         /// <param name="encodingProfile">
         /// Encoding profile used for the recording session
         /// </param>
-        public async Task StartRecordingAsync(string uri, MediaEncodingProfile encodingProfile)
+        public async Task StartRecordingAsync(string uri, MediaEncodingProfile encodingProfile, long startTime)
         {
             try
             {
@@ -247,11 +258,11 @@ namespace TestRTMP
                 // Release sink if there is one already.
                 CleanupSink();
 
-                // Create new sink
+                // Create new sink0
                 mediaSink = new MediaSink();
 
 
-                var mfExtension = await mediaSink.InitializeAsync(uri, encodingProfile.Audio, encodingProfile.Video);
+                var mfExtension = await mediaSink.InitializeAsync(uri, encodingProfile.Audio, encodingProfile.Video, startTime);
 
               //  Windows.Storage.StorageFile storageFile = await Windows.Storage.KnownFolders.VideosLibrary.CreateFileAsync("capture1.mp4", Windows.Storage.CreationCollisionOption.GenerateUniqueName);
                 //Windows.Storage.StorageFile storageFile = await Windows.Storage.StorageFile.GetFileFromPathAsync("C:\\Users\\flecoqui\\Videos\\capture.mp4");
@@ -270,7 +281,12 @@ namespace TestRTMP
                 throw e;
             }
         }
-
+        public long GetLastDTS()
+        {
+            if (mediaSink != null)
+                return mediaSink.GetLastDTS();
+            return 0;
+        }
         /// <summary>
         /// Stops recording asynchronously
         /// </summary>

@@ -182,6 +182,18 @@ namespace Microsoft
             _keyframeinterval = val;
           }
         }
+		property LONGLONG LastDTS
+		{
+			LONGLONG get()
+			{
+				return _lastdts;
+			}
+
+			void set(LONGLONG val)
+			{
+				_lastdts = val;
+			}
+		}
 
         property LONGLONG VideoTimestampBase
         {
@@ -292,6 +304,8 @@ namespace Microsoft
         LONGLONG _videoTSBase = -1;
 
         LONGLONG _audioTSBase = -1;
+
+		LONGLONG _lastdts = -1;
 
         MediaEncodingProfile^ _targetEncodingProfile = nullptr;
 
