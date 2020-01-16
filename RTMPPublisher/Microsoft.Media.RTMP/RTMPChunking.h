@@ -236,8 +236,11 @@ namespace Microsoft
           }
 
           auto payloadlen = min(len - ctr, currentChunkSize);
-          retval.get()->GetPayload()->resize(payloadlen);
-          memcpy_s(&(*(retval.get()->GetPayload()->begin())), payloadlen, data + ctr, payloadlen);
+          if (payloadlen > 0 )
+          {
+              retval.get()->GetPayload()->resize(payloadlen);
+              memcpy_s(&(*(retval.get()->GetPayload()->begin())), payloadlen, data + ctr, payloadlen);
+          }
           return retval;
 
         }
